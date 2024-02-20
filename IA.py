@@ -11,7 +11,7 @@ import time
 import matplotlib.pyplot as plt
 
 # Carregar os dados
-url = "https://www.football-data.co.uk/mmz4281/2324/D1.csv"
+url = "x" #Coloque aqui a URL desejada
 data = pd.read_csv(url)
 
 # Selecionar as colunas relevantes
