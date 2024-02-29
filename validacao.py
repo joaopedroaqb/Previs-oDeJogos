@@ -9,7 +9,7 @@ import time
 import matplotlib.pyplot as plt
 
 # Carregar os dados de teste
-url = "x" # Coloque aqui sua URL 
+url = "https://www.football-data.co.uk/mmz4281/2324/D1.csv" # Coloque aqui sua URL 
 data = pd.read_csv(url)
 colunas = ['HomeTeam', 'AwayTeam', 'FTHG', 'FTAG', 'FTR', 'HTHG', 'HTAG', 'HTR']
 data = data[colunas]
@@ -68,17 +68,14 @@ conf_matrix = confusion_matrix(y_test.map({'A': 0, 'D': 1, 'H': 2}).values, pred
 print("Acurácia do modelo:", accuracy)
 
 # Plotar a matriz de confusão
-labels = ['A', 'D', 'H']  # 'Away = Fora', 'Draw = Empate', 'Home = Casa'
-plt.figure(figsize=(8, 6))
-plt.imshow(conf_matrix, interpolation='nearest', cmap=plt.cm.Blues)
-plt.title('Confusion Matrix')
-plt.colorbar()
-tick_marks = range(len(labels))
-plt.xticks(tick_marks, labels)
-plt.yticks(tick_marks, labels)
+labels = ['A','D','H']
+
+plt.figure(figsize=(8,6))
+plt.bar(labels, conf_matrix[0], color='r', label='Actual Away')
+plt.bar(labels, conf_matrix[1], bottom=conf_matrix[0], color='g', label='Actual Draw')
+plt.bar(labels, conf_matrix[2], bottom=conf_matrix[0]+conf_matrix[1], color='b', label='Actual Home')
 plt.xlabel('Predicted Label')
-plt.ylabel('True Label')
-for i in range(len(conf_matrix)):
-    for j in range(len(conf_matrix)):
-        plt.text(j, i, str(conf_matrix[i, j]), horizontalalignment="center", color="white" if conf_matrix[i, j] > conf_matrix.max() / 2 else "black")
+plt.ylabel('Counts')
+plt.title('Matrix confusão')
+plt.legend()
 plt.show()

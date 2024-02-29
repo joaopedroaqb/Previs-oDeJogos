@@ -1,0 +1,11 @@
+1- Pré-processamento dos dados: Antes de aplicar o modelo de regressão linear, é necessário realizar algumas etapas de pré-processamento dos dados, como tratamento de valores ausentes e codificação de variáveis categóricas.
+
+2- Divisão dos dados: Separe os dados em conjuntos de treinamento e teste para avaliar a performance do modelo.
+
+3- Treinamento do modelo: Treine o modelo de regressão linear utilizando os dados de treinamento.
+
+4- Avaliação do modelo: Avalie a performance do modelo utilizando os dados de teste.
+
+5- Previsões: Utilize o modelo treinado para fazer previsões sobre o resultado das partidas futuras.
+
+https://www.football-data.co.uk/mmz4281/2324/D1.csv

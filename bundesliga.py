@@ -8,7 +8,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import time
-import matplotlib.pyplot as plt
+import numpy as np
 
 # Carregar os dados
 url = "https://www.football-data.co.uk/mmz4281/2324/D1.csv"
@@ -54,8 +54,11 @@ X_train_preprocessed = pipeline.fit_transform(X_train)
 # Convertendo a matriz esparsa em uma matriz densa
 X_train_preprocessed_dense = X_train_preprocessed.toarray()
 
-# Treinar o modelo usando PyTorch
+# Calcular o número de entradas (características)
 input_size = X_train_preprocessed_dense.shape[1]
+print("Número de entradas (características):", input_size)
+
+# Treinar o modelo usando PyTorch
 hidden_size = 100
 output_size = 3  # 3 classes (Away, Draw, Home)
 
@@ -76,7 +79,8 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=0.001)
 
 start = time.perf_counter()
-epochs = 100000  # número de épocas de treinamento
+epochs = 1000  # número de épocas de treinamento
+checkpoint_interval = 1000  # intervalo para salvar o checkpoint
 errors = []
 for epoch in range(epochs):
     optimizer.zero_grad()
@@ -90,6 +94,14 @@ for epoch in range(epochs):
     # Backpropagation
     loss.backward()
     optimizer.step()
+    # Salvar o checkpoint
+    if epoch % checkpoint_interval == 0:
+        torch.save({
+            'epoch': epoch,
+            'model_state_dict': model.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'loss': loss
+        }, 'Bundesligacheckpoint.pth')
 # Testar o modelo já treinado
 end = time.perf_counter()
 tempo_total = end-start
@@ -104,22 +116,47 @@ X_test_preprocessed_dense = X_test_preprocessed.toarray()
 model.eval()
 y_pred = model(torch.FloatTensor(X_test_preprocessed_dense))
 _, predicted = torch.max(y_pred, 1)
-accuracy = accuracy_score(y_test.map({'A': 0, 'D': 1, 'H': 2}).values, predicted)
-conf_matrix = confusion_matrix(y_test.map({'A': 0, 'D': 1, 'H': 2}).values, predicted)
-print("Acurácia do modelo:", accuracy)
 
-# Plotar a matriz de confusão
-labels = ['A', 'D', 'H']  # 'Away = Fora', 'Draw = Empate', 'Home = Casa'
-plt.figure(figsize=(8, 6))
-plt.imshow(conf_matrix, interpolation='nearest', cmap=plt.cm.Blues)
-plt.title('Confusion Matrix')
-plt.colorbar()
-tick_marks = range(len(labels))
-plt.xticks(tick_marks, labels)
-plt.yticks(tick_marks, labels)
-plt.xlabel('Predicted Label')
-plt.ylabel('True Label')
-for i in range(len(conf_matrix)):
-    for j in range(len(conf_matrix)):
-        plt.text(j, i, str(conf_matrix[i, j]), horizontalalignment="center", color="white" if conf_matrix[i, j] > conf_matrix.max() / 2 else "black")
-plt.show()
+# Mapear os valores preditos para 'A', 'D', 'H'
+predicted_labels = np.vectorize({0: 'A', 1: 'D', 2: 'H'}.get)(predicted.numpy())
+
+# Calcular a acurácia
+accuracy = accuracy_score(y_test, predicted_labels)
+
+# Calcular a matriz de confusão
+conf_matrix = confusion_matrix(y_test, predicted_labels)
+
+# Exibir a acurácia e a matriz de confusão
+print("Acurácia do modelo:", accuracy)
+print("Matriz de confusão:")
+print(conf_matrix)
+
+# Remover a coluna 'HomeTeam' antes de calcular a média
+df_media_times = data.drop(['HomeTeam'], axis=1).groupby(['AwayTeam']).mean().reset_index()
+
+dict_media_times = df_media_times.set_index('AwayTeam').T.to_dict('list')
+
+# Coletar os dados das partidas futuras
+dados_partidas_futuras = {
+    'HomeTeam': ['TimeCasa1', 'TimeCasa2'],  # Nome dos times da casa
+    'AwayTeam': ['TimeFora1', 'TimeFora2'],  # Nome dos times visitantes
+    'FTHG': [1, 0],  # Gols marcados em casa na primeira etapa
+    'FTAG': [0, 2],  # Gols marcados fora na primeira etapa
+    'HTHG': [0, 1],  # Gols marcados em casa na segunda etapa
+    'HTAG': [1, 1]   # Gols marcados fora na segunda etapa
+}
+
+# Criar DataFrame com os dados das partidas futuras
+df_partidas_futuras = pd.DataFrame(dados_partidas_futuras)
+
+# Calcular a média das estatísticas dos times da casa para as partidas futuras
+df_partidas_futuras['FTHG_mean'] = df_partidas_futuras['HomeTeam'].map(lambda x: dict_media_times[x][0])
+df_partidas_futuras['HTHG_mean'] = df_partidas_futuras['HomeTeam'].map(lambda x: dict_media_times[x][1])
+
+# Calcular a média das estatísticas dos times visitantes para as partidas futuras
+df_partidas_futuras['FTAG_mean'] = df_partidas_futuras['AwayTeam'].map(lambda x: dict_media_times[x][0])
+df_partidas_futuras['HTAG_mean'] = df_partidas_futuras['AwayTeam'].map(lambda x: dict_media_times[x][1])
+
+# Exibir o DataFrame com as estatísticas médias das partidas futuras
+print("\nResultados previstos das partidas futuras:")
+print(df_partidas_futuras)

@@ -11,7 +11,7 @@ import time
 import matplotlib.pyplot as plt
 
 # Carregar os dados
-url = "x" #Coloque aqui a URL desejada
+url = "X" #Coloque aqui a URL desejada
 data = pd.read_csv(url)
 
 # Selecionar as colunas relevantes
@@ -76,7 +76,7 @@ criterion = nn.CrossEntropyLoss()
 optimizer = optim.SGD(model.parameters(), lr=0.001)
 
 start = time.perf_counter()
-epochs = 100000  # número de épocas de treinamento
+epochs = 20000  # número de épocas de treinamento
 errors = []
 for epoch in range(epochs):
     optimizer.zero_grad()
@@ -123,3 +123,36 @@ for i in range(len(conf_matrix)):
     for j in range(len(conf_matrix)):
         plt.text(j, i, str(conf_matrix[i, j]), horizontalalignment="center", color="white" if conf_matrix[i, j] > conf_matrix.max() / 2 else "black")
 plt.show()
+
+# Coletar dados das partidas futuras
+# Substitua os valores abaixo pelos dados reais das partidas futuras
+dados_partidas_futuras = {
+    'HomeTeam': ['TimeCasa1', 'TimeCasa2'],  # Nome dos times da casa
+    'AwayTeam': ['TimeFora1', 'TimeFora2'],  # Nome dos times visitantes
+    'FTHG': [1, 0],  # Gols marcados em casa na primeira etapa
+    'FTAG': [0, 2],  # Gols marcados fora na primeira etapa
+    'HTHG': [0, 1],  # Gols marcados em casa na segunda etapa
+    'HTAG': [1, 1]   # Gols marcados fora na segunda etapa
+}
+
+# Criar DataFrame com os dados das partidas futuras
+df_partidas_futuras = pd.DataFrame(dados_partidas_futuras)
+
+# Aplicar pré-processamento aos dados das partidas futuras
+X_partidas_futuras_preprocessed = pipeline.transform(df_partidas_futuras)
+
+# Converter a matriz esparsa em uma matriz densa
+X_partidas_futuras_preprocessed_dense = X_partidas_futuras_preprocessed.toarray()
+
+# Fazer previsões sobre os resultados das partidas futuras
+model.eval()
+y_pred_partidas_futuras = model(torch.FloatTensor(X_partidas_futuras_preprocessed_dense))
+_, predicted_partidas_futuras = torch.max(y_pred_partidas_futuras, 1)
+
+# Mapear os resultados previstos de volta para as classes originais ('A', 'D', 'H')
+resultados_previstos = predicted_partidas_futuras.map({0: 'A', 1: 'D', 2: 'H'})
+
+# Exibir os resultados previstos com os nomes dos times da casa e visitantes
+print("Resultados previstos das partidas futuras:")
+for i, (home, away, result) in enumerate(zip(df_partidas_futuras['HomeTeam'], df_partidas_futuras['AwayTeam'], resultados_previstos)):
+    print(f"Jogo {i+1}: {home} vs {away} - Resultado previsto: {result}")
