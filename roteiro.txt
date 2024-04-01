@@ -9,3 +9,15 @@
 5- Previsões: Utilize o modelo treinado para fazer previsões sobre o resultado das partidas futuras.
 
 https://www.football-data.co.uk/mmz4281/2324/D1.csv
+
+Atualização e modificação
+
+Carregamento de dados: No primeiro código, você está carregando dados de um arquivo CSV local. No segundo código, os dados são baixados de uma URL. Você pode modificar o segundo código para carregar dados de um arquivo local, assim como no primeiro código.
+
+Pré-processamento de dados: No primeiro código, você realiza algumas transformações nos dados, como calcular a soma de gols e adicioná-la como uma nova coluna. Você precisará aplicar essas transformações nos dados carregados no segundo código para que fiquem semelhantes.
+
+Definição do modelo de rede neural: Ambos os códigos definem um modelo de rede neural, mas há diferenças nas arquiteturas. Você pode ajustar a arquitetura do modelo no segundo código para se assemelhar à do primeiro código.
+
+Treinamento do modelo: Ambos os códigos treinam o modelo de rede neural, mas há diferenças nos otimizadores, funções de perda e loops de treinamento. Você pode ajustar esses aspectos no segundo código para se alinhar com o primeiro.
+
+Teste do modelo: Ambos os códigos testam o modelo treinado, mas há diferenças nos dados de entrada e na forma como os resultados são processados. Você precisará ajustar o teste do modelo no segundo código para se alinhar com o primeiro.
