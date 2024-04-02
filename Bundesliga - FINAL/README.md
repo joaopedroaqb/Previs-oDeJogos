@@ -1,4 +1,4 @@
-# Previsão de Resultados de Futebol
+# Previsão de Resultados de Futebol (Bundesliga)
 
 Este projeto consiste em um código em Python para prever os resultados de uma rodada futura de partidas de futebol. Utiliza uma rede neural artificial (RNA) implementada com a biblioteca PyTorch para realizar as previsões.
 
